@@ -10,7 +10,7 @@ const cssModules = {
     builder.onLoad({ filter: /\.module\.css$/ }, async ({ path }) => {
       const input = await readFile(path)
       const result = transform({ filename: path.split(/[\\/]/).at(-1), code: input, cssModules: true })
-      const names = Object.fromEntries(Object.entries(result.exports ?? {}).map(([key, value]) => [key, value.name]))
+      const names = Object.fromEntries(Object.entries(result.exports ?? {}).sort(([a], [b]) => a.localeCompare(b)).map(([key, value]) => [key, value.name]))
       return {
         loader: 'js',
         contents: `const id=${JSON.stringify(manifest.name)};if(!document.querySelector('style[data-plugin-css="'+id+'"]')){const style=document.createElement('style');style.dataset.plugin=id;style.dataset.pluginCss=id;style.textContent=${JSON.stringify(result.code.toString())};document.head.append(style)}export default ${JSON.stringify(names)};`,

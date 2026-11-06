@@ -17,13 +17,13 @@ DSH 插件接口尚未稳定，其他版本未验证，兼容声明暂时固定�
 在 **插件 → 添加插件** 中输入已构建 `.tgz` 包的 URL，或使用命令：
 
 ```powershell
-dsh plugin --profile web add "C:/path/to/dsh-pcb-resource-map-0.1.0.tgz"
+dsh plugin --profile web add "C:/path/to/dsh-pcb-resource-map-0.1.1.tgz"
 ```
 
 仓库提交 `lib/` 构建产物，也可以直接安装 GitHub 版本源码压缩包：
 
 ```powershell
-dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.1.0.tar.gz"
+dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.1.1.tar.gz"
 ```
 
 若要跟随开发版本，可用 `archive/refs/heads/main.tar.gz`。若 DSH 提示需要重启，重启后刷新页面。
