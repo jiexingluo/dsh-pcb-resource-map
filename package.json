@@ -1,6 +1,6 @@
 {
   "name": "dsh-pcb-resource-map",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "PCB Resource Map viewer for DeepSeek Harness with NET highlighting and Relay state switching",
   "type": "module",
   "license": "MIT",

@@ -20,14 +20,14 @@ plugin API is pre-stable.
 Use **Plugins → Add plugin**, and enter the URL of a built `.tgz` package, or run:
 
 ```powershell
-dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/releases/download/v0.2.0/dsh-pcb-resource-map-0.2.0.tgz"
+dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/releases/download/v0.2.1/dsh-pcb-resource-map-0.2.1.tgz"
 ```
 
 The repository includes `lib/` build outputs. GitHub's source archive can also be
 installed directly from a version tag:
 
 ```powershell
-dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.2.0.tar.gz"
+dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.2.1.tar.gz"
 ```
 
 Use `archive/refs/heads/main.tar.gz` to track development instead. Restart DSH
