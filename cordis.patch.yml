@@ -1,0 +1,4 @@
+# Insert our own row; no modified Web bundle or upstream row is required.
+- insert:
+    - id: pcb-resource-map
+      name: dsh-pcb-resource-map

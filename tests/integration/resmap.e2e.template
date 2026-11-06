@@ -1,0 +1,117 @@
+/** Recorded-session PCB Resource Map preview through the assembled Web plugin tree. */
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { chromium } from 'playwright'
+import { expect, it } from 'vitest'
+import { launchWebScaffold, webSnapshotMode } from './scaffold.ts'
+import { connectFreshWorkspace, newEnglishPage } from './support.ts'
+
+const root = fileURLToPath(new URL('../../../', import.meta.url))
+const synthetic = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297">
+<g data-type="NET" id="N1"><path d="M20 40H180" fill="none" stroke="red" stroke-width="3"/></g>
+<g data-type="NET" id="N2"><path d="M20 80H180" fill="none" stroke="green" stroke-width="3"/></g>
+<g data-type="Relay" id="K1"><g id="K1_ON" style="display:none"><path d="M220 40H300" stroke="blue"/></g>
+<g id="K1_OFF"><path d="M220 40L300 80" stroke="black"/></g></g></svg>`
+
+it.skipIf(webSnapshotMode() === 'record')('previews PCB Resource Maps with isolated selection, relay states and zoom', async () => {
+  const scaffold = await launchWebScaffold({
+    replayFixture: join(root, 'snapshots/web/lifecycle-chrome/session.v3.jsonl'),
+    compareReplaySession: false, paceMs: 5,
+    profile: { packages: [{ dir: PLUGIN_DIRECTORY, enabled: true }] },
+  })
+  const browser = await chromium.launch()
+  try {
+    const page = await newEnglishPage(browser)
+    await page.setViewportSize({ width: 1680, height: 1000 })
+    await page.goto(scaffold.authenticatedUrl)
+    await connectFreshWorkspace(page, scaffold.workspaceCwd)
+    const settled = scaffold.whenTurnSettled()
+    const input = page.locator('[data-composer-input]').first()
+    await input.fill('Reply with the single word LIGHTHOUSE and stop.')
+    await input.press('Enter')
+    const sessionId = await settled
+    const cwd = scaffold.ctx.agents.get(sessionId)?.session.header.cwd
+    if (!cwd) throw new Error('Session has no workspace')
+    const samples = process.env.DSH_RESMAP_SAMPLES
+    await writeFile(join(cwd, 'interactive.resmap'), samples ? await readFile(join(samples, 'SPSDemo.resmap')) : synthetic)
+    await writeFile(join(cwd, 'static.resmap'), samples ? await readFile(join(samples, 'SPS_LoadBoard.resmap'))
+      : '<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="532"><text x="20" y="40">Static relay matrix</text></svg>')
+    await writeFile(join(cwd, 'invalid.resmap'), '<svg>broken')
+    await page.getByText('LIGHTHOUSE', { exact: true }).waitFor()
+    const column = page.locator('[data-rightbar-col]')
+    await page.locator('[data-sidebar-right-expand]').click()
+    await column.locator('[data-sidebar-right-guide-entry="files"]').click()
+    await column.locator('[data-files-state="tree"]').waitFor()
+    const preview = column.locator('[data-textpreview-url]:visible')
+    const open = async (name: string) => {
+      const toggle = column.locator('[data-files-navigator-toggle]:visible')
+      if (await toggle.count()) {
+        const navigator = column.locator('[data-files-navigator]:visible')
+        if (!await navigator.count()) await toggle.click()
+      }
+      await column.locator('[data-files-entry="file"]').getByRole('button', { name, exact: true }).click()
+      if (await column.locator('[data-files-navigator]:visible').count()) await toggle.click()
+    }
+    await open('interactive.resmap')
+    await preview.getByText(samples ? '98 networks · 48 relays' : '2 networks · 1 relays', { exact: true }).waitFor()
+    const map = preview.frameLocator('iframe[title="PCB Resource Map"]')
+    const net = map.locator('[data-resmap-net]').first()
+    const paint = samples ? net : net.locator('path').first()
+    const color = () => paint.evaluate(node => `${getComputedStyle(node).fill}/${getComputedStyle(node).stroke}`)
+    const before = await color()
+    const point = await paint.evaluate((node) => {
+      const path = node as SVGGeometryElement
+      const matrix = path.getScreenCTM()
+      if (!matrix) throw new Error('Map path has no screen transform')
+      const position = path.getPointAtLength(path.getTotalLength() / 2).matrixTransform(matrix)
+      return { x: position.x, y: position.y }
+    })
+    const frameBox = await preview.locator('iframe[title="PCB Resource Map"]').boundingBox()
+    if (!frameBox) throw new Error('Map frame has no bounds')
+    await page.mouse.click(frameBox.x + point.x, frameBox.y + point.y)
+    await expect.poll(() => net.getAttribute('data-resmap-selected')).toBe('')
+    expect(await color()).not.toBe(before)
+    const relay = samples ? map.locator('[id="RELAY-K19-8"]') : map.locator('[id="K1"]')
+    await relay.focus()
+    await relay.press('Enter')
+    expect(await relay.getAttribute('aria-pressed')).not.toBeNull()
+    const pressed = await relay.getAttribute('aria-pressed')
+    await relay.press('Space')
+    expect(await relay.getAttribute('aria-pressed')).not.toBe(pressed)
+    await relay.click()
+    expect(await relay.getAttribute('aria-pressed')).toBe(pressed)
+    await preview.locator('[data-textpreview-tool="reload"]').click()
+    await expect.poll(() => map.locator('[data-resmap-net]').first().getAttribute('data-resmap-selected')).toBeNull()
+    const viewer = preview.locator('[data-document-viewer-menu]')
+    await viewer.click()
+    await page.getByRole('menuitem', { name: 'Plain text', exact: true }).click()
+    await preview.locator('[data-textpreview-line]').first().waitFor()
+    await viewer.click()
+    await page.getByRole('menuitem', { name: 'PCB Resource Map', exact: true }).click()
+    await preview.getByRole('button', { name: 'Actual size', exact: true }).waitFor()
+    await preview.getByRole('button', { name: 'Actual size', exact: true }).click()
+    await preview.getByText('100%', { exact: true }).waitFor()
+    await preview.getByRole('button', { name: 'Zoom in', exact: true }).click()
+    await preview.getByText('115%', { exact: true }).waitFor()
+    await preview.getByRole('button', { name: 'Fit window', exact: true }).click()
+    const output = join(root, 'output/resmap-validation')
+    await mkdir(output, { recursive: true })
+    await page.screenshot({ path: join(output, samples ? 'sample-interactive-light.png' : 'synthetic-light.png') })
+    const style = await page.addStyleTag({ content: '[data-sidebar-right-panel]{width:360px!important}' })
+    await page.emulateMedia({ colorScheme: 'dark' })
+    await expect.poll(() => page.locator('body').getAttribute('data-ds-dark-theme')).toBe('')
+    expect(await preview.getByRole('button', { name: 'Fit window', exact: true }).isVisible()).toBe(true)
+    await page.screenshot({ path: join(output, samples ? 'sample-interactive-dark-narrow.png' : 'synthetic-dark-narrow.png') })
+    await style.evaluate(node => node.parentNode?.removeChild(node))
+    await open('static.resmap')
+    await preview.getByText('Static SVG · no interactive markers', { exact: true }).waitFor()
+    expect(await preview.frameLocator('iframe').locator('svg').getAttribute('viewBox')).toBe('0 0 1100 532')
+    await page.screenshot({ path: join(output, samples ? 'sample-static.png' : 'synthetic-static.png') })
+    await open('invalid.resmap')
+    await preview.getByRole('alert').filter({ hasText: 'Cannot preview this PCB Resource Map' }).waitFor()
+  } finally {
+    await browser.close()
+    await scaffold.close()
+  }
+})
