@@ -17,18 +17,26 @@ DSH 插件接口尚未稳定，其他版本未验证，兼容声明暂时固定�
 在 **插件 → 添加插件** 中输入已构建 `.tgz` 包的 URL，或使用命令：
 
 ```powershell
-dsh plugin --profile web add "C:/path/to/dsh-pcb-resource-map-0.1.1.tgz"
+dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/releases/download/v0.2.0/dsh-pcb-resource-map-0.2.0.tgz"
 ```
 
 仓库提交 `lib/` 构建产物，也可以直接安装 GitHub 版本源码压缩包：
 
 ```powershell
-dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.1.1.tar.gz"
+dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.2.0.tar.gz"
 ```
 
 若要跟随开发版本，可用 `archive/refs/heads/main.tar.gz`。若 DSH 提示需要重启，重启后刷新页面。
 在“已安装插件”中找到 **PCB Resource Map**，从工作区 Files 打开 `.resmap`。
 预览菜单保留纯文本回退和重新加载。
+
+Web 与 Desktop 的插件配置独立，需要在实际使用的应用中安装。若使用命令管理 Desktop，请先完全退出应用，并使用安装版自带的 `dsh` 和 `--profile desktop`；源码版 CLI 无权管理 Desktop 保留配置。
+
+## 自动打开预览
+
+从 0.2.0 开始，当前会话成功执行 `write`、`edit` 或修改文件的 `str_replace_editor` 后，会在右侧自动打开 `.resmap`。也支持 PTC 中嵌套调用这些工具。更新同一文件会复用已有文档，内容刷新沿用 DSH。
+
+通过 Shell、Python 或 MCP 生成时，插件会提示模型在成功后调用 DSH 的 `present` 工具，提交最终已存在的文件路径，再打开对应预览。这需要启用 `present` 且模型遵循提示；插件不从命令输出猜测文件路径，也不监听外部程序。读取文件、执行失败、后台会话、首次加载历史及重连回放不会触发打开。禁用插件后，相应模型提示也会移除。
 
 npm 包名拟用 `dsh-pcb-resource-map`，但**尚未发布到 npm registry**。
 维护者发布后，才可以直接按名称安装：

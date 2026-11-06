@@ -27,7 +27,7 @@ export function ResourceMap(props: ResourceMapProps): ReactNode {
     }
   }, [data])
   if (!prepared) return <div className={css.error} role="alert">{props.t('invalid')}</div>
-  return <MapFrame prepared={prepared} t={props.t} />
+  return <MapFrame key={prepared.html} prepared={prepared} t={props.t} />
 }
 
 function MapFrame({ prepared, t }: { prepared: PreparedMap; t: ResourceMapProps['t'] }): ReactNode {
@@ -35,8 +35,8 @@ function MapFrame({ prepared, t }: { prepared: PreparedMap; t: ResourceMapProps[
   const [scale, setScale] = useState(1)
   const [counts, setCounts] = useState<{ nets: number; relays: number; unavailable: number }>()
   const [failed, setFailed] = useState(false)
-  const [active, setActive] = useState<PreparedMap>()
-  const ready = active === prepared && !failed
+  const [loaded, setLoaded] = useState(false)
+  const ready = loaded && !failed
   useEffect(() => () => { controls.current?.dispose() }, [])
   return <div className={css.root}>
     <div className={css.toolbar} role="group" aria-label={t('controls')}>
@@ -60,7 +60,7 @@ function MapFrame({ prepared, t }: { prepared: PreparedMap; t: ResourceMapProps[
           controls.current = viewport
           setCounts({ nets: viewport.nets, relays: viewport.relays, unavailable: viewport.unavailable })
           setFailed(false)
-          setActive(prepared)
+          setLoaded(true)
         } catch (error) {
           // Frame initialization failures retain the shared Reload control above this body.
           if (!(error instanceof Error)) throw error

@@ -5,9 +5,10 @@ import type {} from '@deepseek-ai/dsh-client-locale/client'
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import { ResourceMap } from './ResourceMap.tsx'
 import { dictionaries } from './locales.ts'
+import { installAutoOpen } from './auto-open.ts'
 
 /** Required browser services; slot declaration readiness is awaited separately. */
-export const inject = ['documentPreviews', 'slots', 'locale']
+export const inject = ['documentPreviews', 'slots', 'locale', 'sessions', 'sidebarRight', 'connection']
 
 /**
  * Install renderer metadata, localized copy, and a reversible document body.
@@ -21,4 +22,5 @@ export function apply(ctx: Context): void {
   ctx.effect(() => ctx.slots.inject('sidebar.right.tab.document', () => ctx.slots.register({
     name: 'sidebar.right.tab.document', key: id, locale: 'resourceMap',
   }, ResourceMap)))
+  installAutoOpen(ctx, 'resmap')
 }

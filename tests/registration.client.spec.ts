@@ -13,6 +13,8 @@ it('retires the locale, preview metadata and foreign slot on disposal', async ()
   const removeSlot = vi.fn()
   const registerPreview = vi.fn((_options: unknown) => removePreview)
   const registerSlot = vi.fn((_options: unknown) => removeSlot)
+  ctx.provide('connection', { generation: { subscribe: () => () => {}, getSnapshot: () => undefined } } as never)
+  ctx.provide('sidebarRight', { mounted: { subscribe: () => () => {}, getSnapshot: () => undefined } } as never)
   ctx.provide('locale', { register: () => removeLocale, bind: () => () => 'PCB Resource Map' } as never)
   ctx.provide('documentPreviews', { register: registerPreview } as never)
   ctx.provide('slots', {

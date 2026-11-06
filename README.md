@@ -20,20 +20,28 @@ plugin API is pre-stable.
 Use **Plugins → Add plugin**, and enter the URL of a built `.tgz` package, or run:
 
 ```powershell
-dsh plugin --profile web add "C:/path/to/dsh-pcb-resource-map-0.1.1.tgz"
+dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/releases/download/v0.2.0/dsh-pcb-resource-map-0.2.0.tgz"
 ```
 
 The repository includes `lib/` build outputs. GitHub's source archive can also be
 installed directly from a version tag:
 
 ```powershell
-dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.1.1.tar.gz"
+dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.2.0.tar.gz"
 ```
 
 Use `archive/refs/heads/main.tar.gz` to track development instead. Restart DSH
 if it reports that a restart is required, then refresh the page. Find **PCB Resource
 Map** in Installed plugins. Open a `.resmap` through the workspace Files view. The
 document viewer menu also offers Plain text and the shared Reload control.
+
+Web and Desktop have separate plugin profiles. Install in the app you use. For Desktop CLI management, fully quit the app and use the `dsh` supplied by the installed application with `--profile desktop`; a source-checkout CLI cannot manage that reserved profile.
+
+## Automatic preview
+
+From version 0.2.0, successful `write`, `edit` and mutating `str_replace_editor` calls in the foreground session automatically open `.resmap` files in the right sidebar. Nested PTC tool writes are supported too. Updates reuse the existing document, whose file refresh is managed by DSH.
+
+For shell, Python or MCP generators, the host contribution asks the model to call DSH's `present` tool with the final existing file path after successful generation. A successful `present` delivery opens the matching preview. This requires `present` to be enabled and the model to follow the guidance; the plugin does not infer file writes from command output or watch external programs. Read-only calls, failed operations, background sessions, initial history and reconnect/history replay do not open previews. The model guidance is removed when the plugin is disabled.
 
 The intended npm package name is `dsh-pcb-resource-map`, but **no npm
 registry release has been published yet**. After a maintainer publishes it, the
