@@ -13,21 +13,23 @@ preview only; it never controls hardware or writes back to the source.
 
 ## Install
 
-Requires DeepSeek Harness **0.2.2-rc.1** and Node **24.9 or newer**. Other DSH
+Requires DeepSeek Harness **0.2.2-rc.3** and Node **24.9 or newer**. Other DSH
 versions have not been validated; compatibility is deliberately pinned while the
 plugin API is pre-stable.
+
+Version 0.3.0 targets DSH 0.2.2-rc.3; use plugin 0.2.1 for DSH 0.2.2-rc.1. This release updates the compatibility declaration, development dependencies and lockfile, and rebuilds against rc.3. Preview and automatic-opening APIs were verified in the installed application's runtime. Compatibility remains limited to the tested DSH version; reinstalling an older package does not resolve a runtime-version mismatch.
 
 Use **Plugins → Add plugin**, and enter the URL of a built `.tgz` package, or run:
 
 ```powershell
-dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/releases/download/v0.2.1/dsh-pcb-resource-map-0.2.1.tgz"
+dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/releases/download/v0.3.0/dsh-pcb-resource-map-0.3.0.tgz"
 ```
 
 The repository includes `lib/` build outputs. GitHub's source archive can also be
 installed directly from a version tag:
 
 ```powershell
-dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.2.1.tar.gz"
+dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.3.0.tar.gz"
 ```
 
 Use `archive/refs/heads/main.tar.gz` to track development instead. Restart DSH

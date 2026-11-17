@@ -11,19 +11,21 @@
 
 ## 安装
 
-当前验证版本：DeepSeek Harness **0.2.2-rc.1**，Node **24.9 或更新版本**。
+当前验证版本：DeepSeek Harness **0.2.2-rc.3**，Node **24.9 或更新版本**。
 DSH 插件接口尚未稳定，其他版本未验证，兼容声明暂时固定为该版本。
+
+插件 0.3.0 对应 DSH 0.2.2-rc.3；DSH 0.2.2-rc.1 请使用插件 0.2.1。本次同步更新兼容声明、开发依赖和锁文件，并针对 rc.3 重新构建，已在安装版运行环境中验证预览和自动打开。兼容范围仍限定为经过验证的 DSH 版本；重新安装同一个旧包无法解决版本不匹配。
 
 在 **插件 → 添加插件** 中输入已构建 `.tgz` 包的 URL，或使用命令：
 
 ```powershell
-dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/releases/download/v0.2.1/dsh-pcb-resource-map-0.2.1.tgz"
+dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/releases/download/v0.3.0/dsh-pcb-resource-map-0.3.0.tgz"
 ```
 
 仓库提交 `lib/` 构建产物，也可以直接安装 GitHub 版本源码压缩包：
 
 ```powershell
-dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.2.1.tar.gz"
+dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.3.0.tar.gz"
 ```
 
 若要跟随开发版本，可用 `archive/refs/heads/main.tar.gz`。若 DSH 提示需要重启，重启后刷新页面。
