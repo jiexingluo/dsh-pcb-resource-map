@@ -13,23 +13,21 @@ preview only; it never controls hardware or writes back to the source.
 
 ## Install
 
-Requires DeepSeek Harness **0.2.2-rc.3** and Node **24.9 or newer**. Other DSH
-versions have not been validated; compatibility is deliberately pinned while the
-plugin API is pre-stable.
+Requires DeepSeek Harness **>=0.2.2-rc.3 <0.3.0-0** and Node **24.9 or newer**. Version 0.4.0 accepts subsequent 0.2.x release candidates and patch releases, so a DSH version change within that range no longer requires a plugin release by itself. The upper limit excludes 0.3.0 prereleases as well as later versions.
 
-Version 0.3.0 targets DSH 0.2.2-rc.3; use plugin 0.2.1 for DSH 0.2.2-rc.1. This release updates the compatibility declaration, development dependencies and lockfile, and rebuilds against rc.3. Preview and automatic-opening APIs were verified in the installed application's runtime. Compatibility remains limited to the tested DSH version; reinstalling an older package does not resolve a runtime-version mismatch.
+Preview and automatic-opening behavior were verified with the installed rc.3 runtime in the previous release and with rc.5 for this release. Development stays on the rc.3 API baseline; CI checks types and unit tests against rc.3 and rc.5. DSH APIs remain pre-stable: an API change can still require a plugin update, and 0.3.x or later needs a fresh review. Use plugin 0.2.1 for DSH 0.2.2-rc.1. Web and Electron Desktop use the same browser contribution.
 
 Use **Plugins → Add plugin**, and enter the URL of a built `.tgz` package, or run:
 
 ```powershell
-dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/releases/download/v0.3.0/dsh-pcb-resource-map-0.3.0.tgz"
+dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/releases/download/v0.4.0/dsh-pcb-resource-map-0.4.0.tgz"
 ```
 
 The repository includes `lib/` build outputs. GitHub's source archive can also be
 installed directly from a version tag:
 
 ```powershell
-dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.3.0.tar.gz"
+dsh plugin --profile web add "https://github.com/jiexingluo/dsh-pcb-resource-map/archive/refs/tags/v0.4.0.tar.gz"
 ```
 
 Use `archive/refs/heads/main.tar.gz` to track development instead. Restart DSH
@@ -68,7 +66,7 @@ npm run verify:package
 npm pack
 ```
 
-The committed pnpm lockfile is used for development and CI.
+The committed pnpm lockfile is used for baseline development and CI. Package verification checks the admitted and excluded DSH version boundaries with the same prerelease matching rule as DSH.
 `scripts/build.mjs` builds the Node companion, DSH module-loader browser factory,
 and scoped CSS without using DSH's monorepo build scripts. React and UI primitives
 come from the running DSH browser module table; DOMPurify is bundled with notices.
